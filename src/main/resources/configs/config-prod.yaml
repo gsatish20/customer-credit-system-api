@@ -1,0 +1,17 @@
+#HTTP configurations
+
+http:
+  port: "8081"
+  host: "0.0.0.0"
+
+#SQL Server configurations
+
+db:
+  host: "main.sql.server"
+  port: "1433"
+  name: "CDS"
+  userName: "CDS_User"
+  password: "genericPassword"
+
+api:
+  id: "6753443"

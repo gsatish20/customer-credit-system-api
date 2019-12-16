@@ -1,0 +1,106 @@
+#%RAML 1.0 Library
+types:
+#Vendor dataType  
+  vendor:
+    type: object
+    description: bank for lending credit cards
+    properties:
+      name:
+        type: string
+        description: name of vendor
+        example: Citi
+      type:
+        enum: ["Consumer","Retailer","Commercial"]
+        example: Consumer
+      cardType:
+        enum: ["Master","Visa","Discover","Amex","DinersClub"]
+        example: "DinersClub"
+    example: !include ..//examples/vendor-example.json
+
+#Length of Credit DataType
+  lengthOfCredit:
+    type: object
+    properties: 
+      years:
+        type: integer
+        description: years for thee length of credit
+        example: 0
+      months:
+        type: integer
+        description: mothes in the length of credit
+        example: 3
+      days:
+        type: integer
+        description: days in the length of the credit
+        example: 91
+    example: !include ..//examples/length-of-credit-example.json
+
+#Inquiries DataType
+  inquiry:
+    type: object
+    properties:
+      type:
+        enum: ["Hard","Soft"]
+        example: Hard
+      dateInquired:
+        type: datetime
+        description: date and time when inquired
+      vendor:
+        type: vendor
+        description: who inquired
+      expiry:
+        type: datetime
+        description: expiration of the inquiry
+    example: !include ..//examples/inquiry-example.json
+
+# Customer Name Data Type
+  name:
+    type: object
+    properties:
+      firstName:
+        type: string
+        description: firstName of the Customer
+        example: Satish
+      middleName?:
+        type: string | nil
+        description: MiddleName of the customer
+        example: null
+      lastName:
+        type: string
+        description: LastName of the Customer
+        example: Garimella
+    example: !include ..//examples/customer-name-example.json
+
+#Credit Report Data type
+  creditReport:
+    type: object
+    properties:
+      customerName: 
+        type: name
+      score:
+        type: integer
+        description: credit score
+        example: 790
+      type:
+        type: string
+        description: type of credit report 
+        example: FICO
+      creditReporter:
+        enum: ["CreditKarma","Experian","EquiFax","TransUnion"]
+        example: "CreditKarma"
+      totalAccounts:
+        type: integer
+        description: total number of accounts reported
+        example: 3
+      lengthOfCredit:
+        type: lengthOfCredit
+      inquiries:
+        type: inquiry[]
+      missedPayments:
+        type: integer
+        example: 4
+    example: !include ..//examples/credit-report-example.json
+          
+      
+          
+      

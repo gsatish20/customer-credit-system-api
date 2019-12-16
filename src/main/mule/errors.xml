@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<error-handler doc:name="global-error-handler" name="global-error-handler">
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="a5655d87-f000-48de-9355-88101fdf96fd" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="60742247-cb09-4ece-aa29-2b322e08a7b2" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="3b68af95-e157-4f62-87e2-7d61d533a797" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="d51a721e-9111-4e57-a6de-c25e1730f8e9" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="3143462f-8ad4-4727-89eb-d791a5a5f24c" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="2fc5f838-a55f-4ef0-be7c-27176ace68a3" name="ef_setErrorResponse"/>
+
+            </on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="535131eb-7d67-4ba9-a6e7-2481b376ac79" >
+			<flow-ref doc:name="ef_setErrorResponse" doc:id="8144f925-6fc6-46d7-8bb5-b8fef2ceb687" name="ef_setErrorResponse"/>
+		</on-error-propagate>
+        
+</error-handler>
+	<sub-flow name="ef_setErrorResponse" doc:id="7277a4f5-a63c-438f-b5f0-a711ab51109c" >
+		<ee:transform doc:name="set Error Response" doc:id="4e5b66f6-02f6-4214-94ad-7d1b83d17520" >
+			<ee:message >
+				<ee:set-payload resource="transformations\setErrorResponse.dwl" />
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[if(error.errorMessage.typedAttributes.statusCode != null) error.errorMessage.typedAttributes.statusCode else 500]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="ERROR" doc:name="Error Logger" doc:id="e0a37d03-b8d3-45ec-8e9c-80639d179742" message="#[payload]" category="com.credit.api"/>
+	</sub-flow>
+	
+	
+</mule>

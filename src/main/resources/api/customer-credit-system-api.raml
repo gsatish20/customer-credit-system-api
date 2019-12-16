@@ -1,0 +1,22 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/80dabd9e-741a-409f-8828-c2538ca0612a/ # 
+title: Customer Credit System API
+
+uses: 
+  creditLibrary: dataTypes/credit-report-library.raml
+/customer:
+  /creditScore:
+    /{ssn}:
+      uriParameters:
+        ssn:
+          maxLength: 9
+          minLength: 9
+      get:
+        description: get customer credit score based on ssn 
+        responses:
+          200:
+            body:
+              application/json:
+                type: creditLibrary.creditReport
+                example: !include examples/credit-report-example.json
+                  

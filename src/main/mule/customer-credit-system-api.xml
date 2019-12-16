@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <apikit:config name="customer-credit-system-api-config" raml="customer-credit-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="customer-credit-system-api-main">
+        <http:listener config-ref="customer-credit-process-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="customer-credit-system-api-config" />
+        <error-handler ref="global-error-handler"/>
+    </flow>
+    <flow name="customer-credit-system-api-console">
+        <http:listener config-ref="customer-credit-process-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="customer-credit-system-api-config" />
+        <error-handler ref="global-error-handler"/>
+    </flow>
+    <flow name="get:\customer\creditScore\(ssn):customer-credit-process-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:name="set log message and store ssn" doc:id="0a6c3f20-47d5-4b11-9189-c19ba6b60605">
+            <ee:variables>
+				<ee:set-variable variableName="logMessage" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : "process started for fetching the loan details for the customer",
+	"timemStamp" : now(),
+	"correlationId" : correlationID
+}]]></ee:set-variable>
+				<ee:set-variable variableName="ssn" ><![CDATA[attributes.uriParams.ssn]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="Logger" doc:id="3c04f33c-80d6-4666-9e16-68391f7fc564" message="#[vars.logMessage]" category="com.credit.api"/>
+		<flow-ref doc:name="wf_getCreditScore" doc:id="8dff4c23-2ae2-450f-b693-9efcd5ab8162" name="wf_getCreditScore"/>
+    </flow>
+</mule>

@@ -1,0 +1,10 @@
+{
+  "type" : "Hard",
+  "dateInquired" : "2019-02-28T16:41:41.090Z",
+  "vendor" : {
+    "name" : "Citi",
+    "type" : "Consumer",
+    "cardType" : "Visa"
+  },
+  "expiry" : "2021-02-28T16:41:41.090Z"
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<sub-flow name="wf_getCreditScore" doc:id="1eceec8b-d1b7-4b63-ac0a-3ca1a376f0bb" >
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="bdf937f5-bd24-4c30-8090-4c077664f08b" >
+			<db:select doc:name="Select Loan Details for Customer based on SSN" doc:id="c6b851d3-5940-412e-9043-d60d6de645fb" config-ref="Database_Config">
+			<db:sql>select * from customer cust join 
+Contact contact on contact.CustomerID = cust.customerId join
+CreditScore credit on credit.CustomerID = cust.customerId join Loan
+loan on loan.CustomerID = cust.customerId where cust.ssn =:ssn</db:sql>
+			<db:input-parameters><![CDATA[{
+	"ssn": vars.ssn
+}]]></db:input-parameters>
+		</db:select>
+		</until-successful>
+		<choice doc:name="credit report exists ?" doc:id="38de32a3-dc4c-4d9e-8ebf-8ee907b8014d" >
+			<when expression="#[sizeOf(payload) &gt; 0]" >
+				<ee:transform doc:name="set json response" doc:id="70e6a813-8092-42d9-991c-e775f876000c">
+			<ee:message>
+						<ee:set-payload resource="transformations\getCreditDetails.dwl" />
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="set error response" doc:id="d1da4bb9-f6bf-47a5-83f7-251aff00a5bc" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code" : 404,
+	"message" : "No Credit Score found for the customer"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</sub-flow>
+</mule>
